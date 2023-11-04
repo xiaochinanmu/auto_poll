@@ -117,3 +117,4 @@ text = tk.Text(window)
 text.pack()
 
 window.mainloop()
+print("分支")
