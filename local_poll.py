@@ -36,6 +36,7 @@ def show_webpage_content():
     page_source = tu.page_source
     tree = etree.HTML(page_source)
     device_li_dict = {}
+    # 获取网页设备号对应的li标签号，有382个li标签对应
     for i in range(1, 382):
         device_num = tree.xpath(f"/html/body/div[2]/div[1]/div[1]/ul/li[{i}]/span/text()")
         device_li_dict[f'{device_num}'] = i
