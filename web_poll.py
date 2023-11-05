@@ -1,8 +1,8 @@
 import tkinter as tk
-
 from lxml import etree
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+import time
 # 从输入框的字符串获取设备号列表
 def get_device_tab(device_num):
     number_tab = []
@@ -13,7 +13,8 @@ def get_device_tab(device_num):
     return number_tab
 
 def show_webpage_content():
-    import time
+    global stop_flag
+    stop_flag = False
     # 获取设备号字符串
     device_string = entry.get()
     # 获取设备号列表
@@ -40,8 +41,8 @@ def show_webpage_content():
     tree = etree.HTML(page_source)
     device_li_dict = {}
     for i in range(1, 382):
-        timee = tree.xpath(f"/html/body/div[2]/div[1]/div[1]/ul/li[{i}]/span/text()")
-        device_li_dict[f'{timee}'] = i
+        device_num = tree.xpath(f"/html/body/div[2]/div[1]/div[1]/ul/li[{i}]/span/text()")
+        device_li_dict[f'{device_num}'] = i
     print(device_li_dict)
 
     in_device_li_dict={}
@@ -54,12 +55,13 @@ def show_webpage_content():
     print(in_device_li_dict)
 
     count=0
-    while count < 9:
+
+    while True:
         text.delete("1.0", tk.END)
         text.insert(tk.END, "设备号" + "          " + "时间" + "                      " + "gps" + "      " + "相机" + "     " + "gravit")
         for key, value in in_device_li_dict.items():
+            time.sleep(2)
             print(key, value)
-
             # 获取设备号数据
             time.sleep(2)
             tu.find_element(by=By.XPATH,value='/html/body/div[1]/section/section/main/div/div/form/div[1]/div[2]/div/div/div/input').click()
@@ -92,30 +94,39 @@ def show_webpage_content():
                 text.tag_configure("red_circle", foreground="red")
                 text.insert(tk.END, "\u25CF ", "red_circle")  # 插入一个红色圆圈
             text.update()
-            # print(time0[0])
-            # print(time1[0])
-            # print(time2[0])
-            # print(gps[0])
-            # print(xiangji[0])
-            # print(gravity[0])
-        count += 1
 
+        if stop_flag == True:
+            # print(stop_flag)
+            break
+        count += 1
+        print(count)
+        time.sleep(2)
+
+
+def stop_webpage_content():
+    global stop_flag
+    stop_flag = True
 
 window = tk.Tk()
-window.title("Webpage Viewer")
+window.title("自动查询")
+stop_flag = False
+label = tk.Label(window, text="               请输入要查询的设备号用','隔开")
+label.pack(anchor="w")  # 使用 anchor="w" 将标签靠左对齐
 
-label = tk.Label(window, text="请输入要查询的设备号用','隔开")
-label.pack()
+# 创建一个框架，用于容纳按钮
+button_frame = tk.Frame(window)
+button_frame.pack()
 
-entry = tk.Entry(window, width=50)
-entry.pack()
+entry = tk.Entry(button_frame, width=50)
+entry.pack(side="left")
 
-button = tk.Button(window, text="显示查询结果", command=show_webpage_content)
-button.pack()
+button = tk.Button(button_frame, text="查询", command=show_webpage_content)
+button.pack(side="left", padx=10)
+
+stop_button = tk.Button(button_frame, text="停止",command=stop_webpage_content)
+stop_button.pack(side="left")
 
 text = tk.Text(window)
 text.pack()
 
 window.mainloop()
-print("分支")
-print("第二次提交")
